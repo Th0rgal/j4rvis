@@ -19,7 +19,7 @@ services:
       - ssl_data:/etc/resty-auto-ssl
     environment:
       ALLOWED_DOMAINS: "api.j4rvis.dev"
-      SITES: "api.j4rvis.dev=j4rvis:8082"
+      SITES: "api.j4rvis.dev=j4rvis:8090"
 
 volumes:
   ssl_data:
