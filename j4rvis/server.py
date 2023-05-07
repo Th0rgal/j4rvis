@@ -82,7 +82,6 @@ class WebServer:
                 web.post("/ask", self.ask),
             ]
         )
-
         cors = aiohttp_cors.setup(
             app,
             defaults={
