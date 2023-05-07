@@ -1,0 +1,10 @@
+version: "3"
+
+services:
+  j4rvis:
+    container_name: j4rvis
+    build: .
+    command: python -u j4rvis
+    restart: always
+    ports:
+      - 8090:8090

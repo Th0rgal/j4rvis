@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+  j4rvis:
+    container_name: j4rvis
+    build: .
+    command: python -u j4rvis
+    restart: always
+    ports:
+      - 8090:8090
+
+  nginx:
+    image: valian/docker-nginx-auto-ssl
+    restart: on-failure
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ssl_data:/etc/resty-auto-ssl
+    environment:
+      ALLOWED_DOMAINS: "back.j4rvis.dev"
+      SITES: "back.j4rvis.dev=j4rvis:8082"
+
+volumes:
+  ssl_data:
