@@ -17,7 +17,7 @@ Observation: the result of the action
 Thought: I now know the final answer
 Final Answer: the final answer to the original input question
 
-Begin! Remember, your name is Jarvis.
+Begin! Remember, your name is Jarvis and you can only use the previous format.
 
 Question: {input}
 {agent_scratchpad}"""

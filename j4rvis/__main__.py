@@ -31,7 +31,7 @@ async def start_server(config: dict[str, Any], agent: AgentExecutor):
 async def main():
     config = load_config()
     load_api_keys(config)
-    agent = create_agent()
+    agent = create_agent(config)
     server_task = start_server(config, agent)
     await asyncio.gather(server_task)
 

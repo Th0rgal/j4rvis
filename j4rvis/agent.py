@@ -1,20 +1,19 @@
 import re
+import openai
 from prompt import PROMPT_TEMPLATE
-from typing import List, Union, Dict, Any
+from typing import List, Union, Dict, Any, Tuple
 from langchain.agents import (
     Tool,
     AgentExecutor,
-    LLMSingleActionAgent,
+    BaseSingleActionAgent,
     AgentOutputParser,
 )
+from langchain.callbacks.manager import Callbacks
 from langchain import LLMChain
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import BaseChatPromptTemplate
 from langchain.schema import AgentAction, AgentFinish, HumanMessage
 from tools import define_tools
-
-
-tools = define_tools()
 
 
 class CustomPromptTemplate(BaseChatPromptTemplate):
@@ -59,7 +58,63 @@ class CustomOutputParser(AgentOutputParser):
         )
 
 
-def create_agent() -> AgentExecutor:
+class LLMSingleActionAgent(BaseSingleActionAgent):
+    llm_chain: LLMChain
+    output_parser: AgentOutputParser
+    stop: List[str]
+
+    @property
+    def input_keys(self) -> List[str]:
+        return list(set(self.llm_chain.input_keys) - {"intermediate_steps"})
+
+    def plan(
+        self,
+        intermediate_steps: List[Tuple[AgentAction, str]],
+        callbacks: Callbacks = None,
+        **kwargs: Any,
+    ) -> Union[AgentAction, AgentFinish]:
+        """Given input, decided what to do.
+
+        Args:
+            intermediate_steps: Steps the LLM has taken to date,
+                along with observations
+            callbacks: Callbacks to run.
+            **kwargs: User inputs.
+
+        Returns:
+            Action specifying what tool to use.
+        """
+        try:
+            output = self.llm_chain.run(
+                intermediate_steps=intermediate_steps,
+                stop=self.stop,
+                callbacks=callbacks,
+                **kwargs,
+            )
+        except openai.error.InvalidRequestError:
+            return "Your request is invalid, it might exceed my capabilities."
+        try:
+            return self.output_parser.parse(output)
+        except ValueError:
+            return "A parsing error happened, sorry"
+
+    async def aplan(
+        self,
+        intermediate_steps: List[Tuple[AgentAction, str]],
+        callbacks: Callbacks = None,
+        **kwargs: Any,
+    ) -> Union[AgentAction, AgentFinish]:
+        pass
+
+    def tool_run_logging_kwargs(self) -> Dict:
+        return {
+            "llm_prefix": "",
+            "observation_prefix": "" if len(self.stop) == 0 else self.stop[0],
+        }
+
+
+def create_agent(config: dict[str, Any]) -> AgentExecutor:
+    tools = define_tools(config)
     prompt = CustomPromptTemplate(
         template=PROMPT_TEMPLATE,
         tools=tools,

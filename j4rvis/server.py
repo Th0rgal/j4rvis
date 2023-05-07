@@ -3,6 +3,7 @@ from auth import verify_password
 from aiohttp import web
 import aiohttp_cors
 import jwt
+import traceback
 import secrets
 import datetime
 
@@ -61,17 +62,19 @@ class WebServer:
         if not input_question:
             return web.json_response({"error": "invalid input or empty question"})
 
-        # Run the agent using the input_question
-        result = self.agent.run(input_question)
+        try:
+            # Run the agent using the input_question
+            result = self.agent.run(input_question)
 
-        # Prepare the JSON response
-        response_data = {"content": result, "bot": True}
+            # Prepare the JSON response
+            response_data = {"content": result, "bot": True}
 
-        # Return the JSON response
-        return web.json_response(response_data)
-        # todo:
-        # except Exception:
-        #     return web.json_response({"error": "an error happened"})
+            # Return the JSON response
+            return web.json_response(response_data)
+
+        except AttributeError:
+            traceback.print_exc()
+            return web.json_response({"error": "an attribute error happened"})
 
     def build_app(self):
         app = web.Application()
