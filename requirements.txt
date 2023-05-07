@@ -1,0 +1,13 @@
+langchain
+google-search-results
+faiss-cpu
+openai
+tiktoken
+lark
+pyowm
+wikipedia
+black
+aiohttp
+aiohttp_cors
+pyjwt
+bcrypt
