@@ -1,5 +1,5 @@
 from typing import Dict, Any
-import os
+import getpass
 import json
 import platform
 from langchain.agents import Tool
@@ -162,7 +162,7 @@ def define_tools(config: dict[str, Any]):
             func=shell_tool_runner,
             description=(
                 f"Run shell commands on this {_get_platform()} machine and returns the output."
-                f"Use this as your own machine, you are connected as '{os.getlogin()}'."
+                f"Use this as your own machine, you are connected as '{getpass.getuser()}'."
                 "Input must be a json object with a list of commands, for example:"
                 '{"commands": ["echo \'Hello World!'
                 '", "time"]}'
