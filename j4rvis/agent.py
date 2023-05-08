@@ -1,6 +1,6 @@
 import re
 import openai
-from prompt import PROMPT_TEMPLATE
+from prompt import get_prompt_template
 from typing import List, Union, Dict, Any, Tuple
 from langchain.agents import (
     Tool,
@@ -37,6 +37,8 @@ class CustomPromptTemplate(BaseChatPromptTemplate):
 
 class CustomOutputParser(AgentOutputParser):
     def parse(self, llm_output: str) -> Union[AgentAction, AgentFinish]:
+        print("[PARSING]\n", llm_output, "\n[END PARSING]")
+
         # Check if agent should finish
         if "Final Answer:" in llm_output:
             return AgentFinish(
@@ -49,7 +51,12 @@ class CustomOutputParser(AgentOutputParser):
         regex = r"Action\s*\d*\s*:(.*?)\nAction\s*\d*\s*Input\s*\d*\s*:[\s]*(.*)"
         match = re.search(regex, llm_output, re.DOTALL)
         if not match:
-            raise ValueError(f"Could not parse LLM output: `{llm_output}`")
+            print(f"Warning, could not parse LLM output: `{llm_output}`")
+            return AgentFinish(
+                return_values={"output": llm_output},
+                log=llm_output,
+            )
+
         action = match.group(1).strip()
         action_input = match.group(2)
         # Return the action and action input
@@ -116,14 +123,14 @@ class LLMSingleActionAgent(BaseSingleActionAgent):
 def create_agent(config: dict[str, Any]) -> AgentExecutor:
     tools = define_tools(config)
     prompt = CustomPromptTemplate(
-        template=PROMPT_TEMPLATE,
+        template=get_prompt_template(config),
         tools=tools,
         # This omits the `agent_scratchpad`, `tools`, and `tool_names` variables because those are generated dynamically
         # This includes the `intermediate_steps` variable because that is needed
         input_variables=["input", "intermediate_steps"],
     )
     output_parser = CustomOutputParser()
-    gpt4_llm = ChatOpenAI(model_name="gpt-4", temperature=0)
+    gpt4_llm = ChatOpenAI(model_name="gpt-4", temperature=0.25)
     llm_chain = LLMChain(llm=gpt4_llm, prompt=prompt)
     tool_names = [tool.name for tool in tools]
     agent = LLMSingleActionAgent(
@@ -133,7 +140,7 @@ def create_agent(config: dict[str, Any]) -> AgentExecutor:
         allowed_tools=tool_names,
     )
     agent_executor = AgentExecutor.from_agent_and_tools(
-        agent=agent, tools=tools, verbose=True
+        agent=agent, tools=tools, verbose=False
     )
 
     return agent_executor

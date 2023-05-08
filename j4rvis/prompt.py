@@ -1,9 +1,19 @@
-PROMPT_TEMPLATE = """
-As Thomas's GPT-4 based intelligent personal assistant,
-modeled after Tony Stark's assistant in the Iron Man movie,
-your role is to answer questions to the best of your ability
-using the available tools:
+from typing import Any
 
+
+def get_prompt_template(conf: dict[str, Any]):
+    employer_name = conf["employer"]["name"]
+    employer_full_name = conf["employer"]["full_name"]
+    employer_email = conf["employer"]["email"]
+    employer_phone = conf["employer"]["phone"]
+    return (
+        f"As {employer_name}'s GPT-4 based intelligent personal assistant, "
+        "modeled after Tony Stark's assistant in the Iron Man movie, "
+        "your role is to answer questions to the best of your ability "
+        f"using the available tools. Your employer full name is {employer_full_name}, "
+        f"his email is {employer_email} and his phone is {employer_phone}."
+        """
+Available tools:
 {tools}
 
 Use the following format:
@@ -15,9 +25,12 @@ Action Input: the input to the action
 Observation: the result of the action
 ... (this Thought/Action/Action Input/Observation can repeat N times)
 Thought: I now know the final answer
-Final Answer: the final answer to the original input question
+Final Answer: the final answer to the original input question, markdown is supported
 
-Begin! Remember, your name is Jarvis and you can only use the previous format.
+Begin! Remember, your name is Jarvis and you always use this format.
 
 Question: {input}
-{agent_scratchpad}"""
+{agent_scratchpad}"
+)
+"""
+    )

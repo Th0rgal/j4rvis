@@ -124,11 +124,27 @@ def define_tools(config: dict[str, Any]):
             ),
         ),
         Tool(
-            name="Search",
+            name="Search Summary",
             func=DuckDuckGoSearchAPIWrapper().run,
             description=(
                 "A wrapper around a search engine. Useful for when "
-                "you need to answer questions about current events."
+                "you need to answer questions about current events. "
+                "Input should be optimized for a search engine."
+                "It returns concatenated summarized results."
+            ),
+        ),
+        Tool(
+            name="Search Meta",
+            func=lambda txt: str(DuckDuckGoSearchAPIWrapper().results(txt, 10)),
+            description=(
+                "A wrapper around a search engine. Useful for when "
+                "you need to answer questions about current events. "
+                "Input should be optimized for a search engine."
+                "It returns the 10 first results as a json array of "
+                "objects with the following keys: "
+                "snippet - The description of the result."
+                "title - The title of the result."
+                "link - The link to the result."
             ),
         ),
         Tool(
