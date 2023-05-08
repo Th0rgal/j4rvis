@@ -37,8 +37,6 @@ class CustomPromptTemplate(BaseChatPromptTemplate):
 
 class CustomOutputParser(AgentOutputParser):
     def parse(self, llm_output: str) -> Union[AgentAction, AgentFinish]:
-        print("[PARSING]\n", llm_output, "\n[END PARSING]")
-
         # Check if agent should finish
         if "Final Answer:" in llm_output:
             return AgentFinish(
@@ -51,7 +49,6 @@ class CustomOutputParser(AgentOutputParser):
         regex = r"Action\s*\d*\s*:(.*?)\nAction\s*\d*\s*Input\s*\d*\s*:[\s]*(.*)"
         match = re.search(regex, llm_output, re.DOTALL)
         if not match:
-            print(f"Warning, could not parse LLM output: `{llm_output}`")
             return AgentFinish(
                 return_values={"output": llm_output},
                 log=llm_output,
@@ -140,7 +137,7 @@ def create_agent(config: dict[str, Any]) -> AgentExecutor:
         allowed_tools=tool_names,
     )
     agent_executor = AgentExecutor.from_agent_and_tools(
-        agent=agent, tools=tools, verbose=False
+        agent=agent, tools=tools, verbose=True
     )
 
     return agent_executor
