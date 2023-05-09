@@ -14,6 +14,7 @@ from langchain.chat_models import ChatOpenAI
 from langchain.prompts import BaseChatPromptTemplate
 from langchain.schema import AgentAction, AgentFinish, HumanMessage
 from tools import define_tools
+from datetime import datetime
 
 
 class CustomPromptTemplate(BaseChatPromptTemplate):
@@ -31,6 +32,7 @@ class CustomPromptTemplate(BaseChatPromptTemplate):
             [f"{tool.name}: {tool.description}" for tool in self.tools]
         )
         kwargs["tool_names"] = ", ".join([tool.name for tool in self.tools])
+        kwargs["current_datetime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         formatted = self.template.format(**kwargs)
         return [HumanMessage(content=formatted)]
 

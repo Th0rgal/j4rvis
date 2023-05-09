@@ -14,6 +14,10 @@ from langchain.utilities import (
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import caldav
+from datetime import datetime, timedelta
+from icalendar import Event
+import pytz
 
 
 def _parse_input(text: str) -> Dict[str, Any]:
@@ -94,6 +98,77 @@ def remove_code_block(code_txt: str) -> str:
     return code_txt
 
 
+def calendar_tool(config, txt: str) -> str:
+    data = _parse_input(txt)
+    action = data.get("action")
+
+    # Connect to the CalDAV server
+    client = caldav.DAVClient(
+        config["calendar"]["server_url"],
+        username=config["calendar"]["username"],
+        password=config["calendar"]["password"],
+    )
+    principal = client.principal()
+    calendars = principal.calendars()
+
+    if not calendars:
+        return "No calendars found."
+
+    if action == "create_event":
+        event_data = data["data"]
+
+        # Find the "Jarvis" calendar
+        jarvis_calendar = None
+        for calendar in calendars:
+            if (
+                calendar.get_properties([caldav.dav.DisplayName()])[
+                    caldav.dav.DisplayName()
+                ]
+                == "Jarvis"
+            ):
+                jarvis_calendar = calendar
+                break
+
+        if not jarvis_calendar:
+            return "Jarvis calendar not found."
+
+        # Create a new event
+        event = Event()
+        event.add("summary", event_data["summary"])
+        event.add("dtstart", datetime.fromisoformat(event_data["dtstart"]))
+        dtend = datetime.fromisoformat(event_data["dtend"]) + timedelta(days=1)
+        event.add("dtend", dtend)
+        event.add("dtstamp", datetime.now(pytz.utc))
+
+        # Add the event to the "Jarvis" calendar
+        jarvis_calendar.add_event(event.to_ical())
+        return "Event created successfully."
+
+    elif action == "get_events":
+        from_dt_str = data["data"]["from_dt"]
+        to_dt_str = data["data"]["to_dt"]
+
+        # Convert the date strings to datetime objects
+        from_dt = datetime.strptime(from_dt_str, "%Y-%m-%d")
+        to_dt = datetime.strptime(to_dt_str, "%Y-%m-%d") + timedelta(days=1)
+
+        event_list = []
+
+        # Iterate through all calendars
+        for calendar in calendars:
+            events = calendar.date_search(from_dt, to_dt)
+
+            for event in events:
+                print(event)
+                event_data = event.data
+                event_list.append(event_data)
+
+        return event_list
+
+    else:
+        return "Invalid action for the Calendar Tool."
+
+
 def define_tools(config: dict[str, Any]):
     return [
         Tool(
@@ -110,6 +185,16 @@ def define_tools(config: dict[str, Any]):
                 "The body contains your message it must be well-formulated and classy."
                 "You must specify in it that you are Mr. Thomas Marchand's assistant. "
                 "The output will be a confirmation the email was sent or an error."
+            ),
+        ),
+        Tool(
+            name="Calendar",
+            func=lambda txt: calendar_tool(config, txt),
+            description=(
+                "A Calendar Tool to create events and retrieve events within a specific date range on your employer calendar. "
+                "The input should be a JSON object with 'action' key and optional 'data' key. "
+                'To create an event: \'{"action": "create_event", "data": {"summary": "My Event", "dtstart": "2023-06-01T12:00:00", "dtend": "2023-06-01T13:00:00"}}\'. '
+                'To get events: \'{"action": "get_events", "data": {"from_dt": "2023-06-01", "to_dt": "2023-06-30"}}\''
             ),
         ),
         Tool(
