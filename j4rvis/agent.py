@@ -13,7 +13,7 @@ from langchain import LLMChain
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import BaseChatPromptTemplate
 from langchain.schema import AgentAction, AgentFinish, HumanMessage
-from tools import define_tools
+from tools.define_tools import define_tools
 from datetime import datetime
 
 
