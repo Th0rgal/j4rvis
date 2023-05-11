@@ -4,6 +4,7 @@ from icalendar import Event
 import pytz
 from .parsers import parse_input
 
+
 def calendar_tool(config, txt: str) -> str:
     data = parse_input(txt)
     action = data.get("action")
@@ -26,12 +27,8 @@ def calendar_tool(config, txt: str) -> str:
         # Find the "Jarvis" calendar
         jarvis_calendar = None
         for calendar in calendars:
-            if (
-                calendar.get_properties([caldav.dav.DisplayName()])[
-                    caldav.dav.DisplayName()
-                ]
-                == "Jarvis"
-            ):
+            calendar_name = calendar.name  # Assuming the name property is available
+            if calendar_name == "Jarvis":
                 jarvis_calendar = calendar
                 break
 
@@ -42,7 +39,7 @@ def calendar_tool(config, txt: str) -> str:
         event = Event()
         event.add("summary", event_data["summary"])
         event.add("dtstart", datetime.fromisoformat(event_data["dtstart"]))
-        dtend = datetime.fromisoformat(event_data["dtend"]) + timedelta(days=1)
+        dtend = datetime.fromisoformat(event_data["dtend"])
         event.add("dtend", dtend)
         event.add("dtstamp", datetime.now(pytz.utc))
 
