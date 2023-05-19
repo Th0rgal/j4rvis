@@ -1,5 +1,5 @@
 langchain
-duckduckgo-search
+google-api-python-client
 faiss-cpu
 openai
 tiktoken

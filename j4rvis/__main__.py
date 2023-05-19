@@ -16,7 +16,8 @@ def load_config() -> dict[str, Any]:
 
 def load_api_keys(config: dict[str, Any]):
     os.environ["OPENAI_API_KEY"] = config["api"]["open_ai"]
-    os.environ["OPENWEATHERMAP_API_KEY"] = config["api"]["openweathermap"]
+    os.environ["GOOGLE_CSE_ID"] = config["api"]["google_cse_id"]
+    os.environ["GOOGLE_API_KEY"] = config["api"]["google_api_key"]
 
 
 async def start_server(config: dict[str, Any], agent: AgentExecutor):

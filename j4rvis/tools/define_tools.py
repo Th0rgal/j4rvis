@@ -3,13 +3,14 @@ from typing import Any
 from langchain.agents import Tool
 from langchain.utilities import (
     WikipediaAPIWrapper,
-    DuckDuckGoSearchAPIWrapper,
+    GoogleSearchAPIWrapper,
     PythonREPL,
 )
 from .parsers import remove_code_block
 from .email_tools import send_email_builder
 from .calendar_tools import calendar_tool
 from .misc_tools import shell_tool_runner, _get_platform
+from .unsplash_tools import search_images_runner_builder
 
 
 def define_tools(config: dict[str, Any]):
@@ -24,8 +25,9 @@ def define_tools(config: dict[str, Any]):
             ),
             description=(
                 "A way to send emails from your own account, j4rvis.assistant@gmail.com."
-                "Input should be a json object with string fields 'to_email', 'subject' and 'body'."
-                "The body contains your message it must be well-formulated and classy."
+                "Input should be a json object with string fields 'to_email', 'subject', 'body' and an array of strings field 'files'."
+                "The body contains your message in HTML format. It must be well-formulated and classy."
+                "The files is a list of paths of files from your computer you want to send at attachments."
                 "You must specify in it that you are Mr. Thomas Marchand's assistant. "
                 "The output will be a confirmation the email was sent or an error."
             ),
@@ -51,20 +53,10 @@ def define_tools(config: dict[str, Any]):
             ),
         ),
         Tool(
-            name="Search Summary",
-            func=DuckDuckGoSearchAPIWrapper().run,
+            name="Google Search",
+            func=lambda txt: str(GoogleSearchAPIWrapper().results(txt, 10)),
             description=(
-                "A wrapper around a search engine. Useful for when "
-                "you need to answer questions about current events. "
-                "Input should be optimized for a search engine."
-                "It returns concatenated summarized results."
-            ),
-        ),
-        Tool(
-            name="Search Meta",
-            func=lambda txt: str(DuckDuckGoSearchAPIWrapper().results(txt, 10)),
-            description=(
-                "A wrapper around a search engine. Useful for when "
+                "A wrapper around the Google search engine. Useful for when "
                 "you need to answer questions about current events. "
                 "Input should be optimized for a search engine."
                 "It returns the 10 first results as a json array of "
@@ -72,6 +64,16 @@ def define_tools(config: dict[str, Any]):
                 "snippet - The description of the result."
                 "title - The title of the result."
                 "link - The link to the result."
+            ),
+        ),
+        Tool(
+            name="Unsplash Search",
+            func=search_images_runner_builder(config),
+            description=(
+                "A wrapper around an images search engine. Useful for when "
+                "you need to find beautiful illustrations for a simple input. "
+                "Output is an array of json objects with description, full_image and small_image urls. "
+                "Use the small image url when answering in markdown."
             ),
         ),
         Tool(

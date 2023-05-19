@@ -1,5 +1,8 @@
 [api]
 open_ai = "xxxxxxxxxxxxxxxx"
+google_cse_id = "xxxxxxxxxxxxxxxx"
+google_api_key = "xxxxxxxxxxxxxxxx"
+unsplash_access_key = "xxxxxxxxxxxxxxxx"
 
 [server]
 port = 8090
