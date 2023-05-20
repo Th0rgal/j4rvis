@@ -11,6 +11,7 @@ from .email_tools import send_email_builder
 from .calendar_tools import calendar_tool
 from .misc_tools import shell_tool_runner, _get_platform
 from .unsplash_tools import search_images_runner_builder
+from .pdf_tools import html_to_pdf_runner
 
 
 def define_tools(config: dict[str, Any]):
@@ -92,10 +93,20 @@ def define_tools(config: dict[str, Any]):
             description=(
                 f"Run shell commands on this {_get_platform()} machine and returns the output."
                 f"Use this as your own machine, you are connected as '{getpass.getuser()}'."
-                "Useful when you need to manage files or when you need to query the internet."
+                "Useful when you need to manage and write files or when you need to query the internet."
                 "Input must be a json object with a list of commands, for example:"
                 '{"commands": ["echo \'Hello World!'
                 '", "time"]}'
+            ),
+        ),
+        Tool(
+            name="HTML to PDF",
+            func=html_to_pdf_runner,
+            description=(
+                "A tool to convert HTML and CSS files to a PDF file. "
+                "Input is a JSON object with two keys 'html' and 'css', both strings indicating the paths to the files. "
+                "'output' key is optional and specifies the output PDF file path. If not provided, output.pdf will be used. "
+                "Output will be a string message indicating the success or failure of the operation."
             ),
         ),
     ]

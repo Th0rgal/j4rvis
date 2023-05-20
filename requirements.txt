@@ -12,3 +12,4 @@ aiohttp_cors
 pyjwt
 bcrypt
 caldav
+pdfkit
