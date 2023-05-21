@@ -13,6 +13,10 @@ name = "John"
 full_name = "John Doe"
 email = "john.doe@tuta.io"
 phone = "+3312345"
+siret = "xxxxxxx"
+bank_name = "Xxxxx"
+iban = "XXXX XXXX XXXX XXXX XXXX XXXX XXXX"
+
 
 [calendar]
 username = "john.doe@tuta.io"

@@ -12,6 +12,8 @@ from .calendar_tools import calendar_tool
 from .misc_tools import shell_tool_runner, _get_platform
 from .unsplash_tools import search_images_runner_builder
 from .pdf_tools import html_to_pdf_runner
+from .document_tools import document_tool_builder
+from langchain.chat_models import ChatOpenAI
 
 
 def define_tools(config: dict[str, Any]):
@@ -97,6 +99,24 @@ def define_tools(config: dict[str, Any]):
                 "Input must be a json object with a list of commands, for example:"
                 '{"commands": ["echo \'Hello World!'
                 '", "time"]}'
+            ),
+        ),
+        Tool(
+            name="Document Generator",
+            func=document_tool_builder(
+                ChatOpenAI(model_name="gpt-4", temperature=0.15)
+            ),
+            description=(
+                "An AI document generator that generates an HTML and CSS document "
+                "based on the provided document description. The documents adhere to a clean "
+                "and professional design aesthetic, fitting within an A4 page. "
+                "The document is outputted as two separate files: index.html and styles.css. "
+                "The input should be a precise document description string that includes all "
+                "necessary information, as this tool does not have access to any user data "
+                "not provided in the input. This means any personal or banking information "
+                "needed in the document must be specified in the input description. "
+                "The output will be a string message indicating the success of the operation "
+                "and paths to the generated HTML and CSS files."
             ),
         ),
         Tool(

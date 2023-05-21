@@ -1,4 +1,5 @@
 config.toml
+generated/**
 
 ### macOS ###
 # General

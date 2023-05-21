@@ -1,6 +1,5 @@
 import re
 import openai
-from prompt import get_prompt_template
 from typing import List, Union, Dict, Any, Tuple
 from langchain.agents import (
     Tool,
@@ -119,10 +118,10 @@ class LLMSingleActionAgent(BaseSingleActionAgent):
         }
 
 
-def create_agent(config: dict[str, Any]) -> AgentExecutor:
+def create_agent(config: dict[str, Any], template: str) -> AgentExecutor:
     tools = define_tools(config)
     prompt = CustomPromptTemplate(
-        template=get_prompt_template(config),
+        template=template,
         tools=tools,
         # This omits the `agent_scratchpad`, `tools`, and `tool_names` variables because those are generated dynamically
         # This includes the `intermediate_steps` variable because that is needed

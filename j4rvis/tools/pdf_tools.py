@@ -36,4 +36,4 @@ def html_to_pdf_runner(input):
         pdfkit.from_file(html_path, output_path, options=options)
         return f"PDF successfully created at {output_path}"
     except Exception as e:
-        return str(e)
+        return f"An error happened but it might just be a warning: {str(e)}, the PDF if it was created is accessible at {output_path}"

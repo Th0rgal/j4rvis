@@ -2,6 +2,7 @@ from agent import create_agent
 from server import WebServer
 from auth import hash_password
 from langchain.agents import AgentExecutor
+from prompt import get_j4rvis_template
 from aiohttp import web
 from typing import Any
 import tomllib
@@ -32,7 +33,7 @@ async def start_server(config: dict[str, Any], agent: AgentExecutor):
 async def main():
     config = load_config()
     load_api_keys(config)
-    agent = create_agent(config)
+    agent = create_agent(config, get_j4rvis_template(config))
     server_task = start_server(config, agent)
     await asyncio.gather(server_task)
 
