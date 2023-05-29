@@ -14,7 +14,7 @@ def send_email_builder(email, password, server_url, port):
         to_email = data["to_email"]
         subject = data["subject"]
         body = data["body"]
-        files = data["files"]
+        files = data["files"] if "files" in data else []
 
         # Create the MIME object
         msg = MIMEMultipart()
